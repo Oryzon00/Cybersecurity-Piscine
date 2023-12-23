@@ -13,9 +13,10 @@ def program_info():
 # print("script name:", sys.argv[0])
 
 parser = argparse.ArgumentParser()
-# parser.add_argument()
+parser.add_argument("echo", help="echo your string", type="string")
 args = parser.parse_args()
 
+print(args.echo)
 
 # print(args.filename, args.count, args.verbose)
 
