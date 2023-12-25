@@ -25,6 +25,6 @@ print(args)
 
 extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"]
 
-# response = requests.get(args.URL)
+response = requests.get(args.URL)
 
-# open(args.PATH + "img1", "r").write(response.content)
+open("img1", "wb").write(response.content)
