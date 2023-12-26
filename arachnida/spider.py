@@ -1,6 +1,11 @@
 import argparse
 import requests
 import sys
+import os
+from lxml import html
+from urllib.parse import urlsplit, urlparse
+
+
 
 parser = argparse.ArgumentParser()
 
@@ -19,12 +24,56 @@ args = parser.parse_args()
 if (sys.argv.__contains__("-l") and not sys.argv.__contains__("-r")):
 	parser.error("-r is required to use -l")
 
+print("\n")
 print(args)
+print("\n")
+
+# print("\n----------------------------------------\n")
 
 #-------------------------------------------------------------------------------------------------#
 
-extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"]
+os.makedirs(name=args.PATH, exist_ok=True)
 
-response = requests.get(args.URL)
+def get_img_url(src: str) -> str:
+	parts_url = urlsplit(args.URL)
+	#absolute url
+	if (urlparse(src).scheme):
+		return (src)
+	#protocol relative url
+	elif (src.startswith("//")):
+		return (parts_url.scheme + ":" + src)
+	#relative url
+	else:
+		return (parts_url.scheme + "://" + parts_url.netloc + src)
 
-open("img1", "wb").write(response.content)
+def download_img(url: str) -> None:
+	response_img = requests.get(url)
+	filename = os.path.basename(url)
+	open(args.PATH + filename, "wb").write(response_img.content)
+	print("Downloaded " + filename + "\nfrom " + url + "\n")
+
+def download_all_imgs_from_url(url: str) -> None:
+	response_page = requests.get(args.URL)
+	tree = html.fromstring(response_page.content)
+	imgs = tree.xpath("//img")
+	extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"]
+
+	for img in imgs:
+		src = img.get("src")
+		for extension in extensions:
+			if (src.endswith(extension)):
+				img_url = get_img_url(src)
+				download_img(img_url)
+
+def	recursive_download(url:str, n: int):
+	print("recursive level: " + str(n))
+	download_all_imgs_from_url(url)
+	if (n <= 0):
+		return
+	#get new url
+	recursive_download(url, n - 1)
+
+if (args.r):
+	recursive_download(args.URL, args.N)
+else:
+	recursive_download(args.URL, 0)
