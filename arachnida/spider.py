@@ -79,7 +79,6 @@ def	get_url_list_from_anchors(url: str, tree: html.HtmlElement) -> [str]:
 def	recursive_download(url:str, n: int):
 	response_page = requests.get(url)
 	tree : html.HtmlElement = html.fromstring(response_page.content)
-
 	download_all_imgs_from_url(url, tree)
 	if (n <= 0):
 		return
@@ -100,3 +99,5 @@ else:
 	recursive_download(args.URL, 0)
 
 print("\n----- DONE -----\n")
+
+#img with same name --> need to change name so i dont write on same file -> default(1), default(2), etc...
