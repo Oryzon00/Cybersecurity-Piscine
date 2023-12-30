@@ -50,7 +50,6 @@ def download_img(url: str) -> None:
 	filename = os.path.basename(url)
 	open(args.PATH + filename, "wb").write(response_img.content)
 	print("Downloaded " + filename + "\nFrom " + url + "\n")
-	
 
 def download_all_imgs_from_url(url: str, tree: html.HtmlElement) -> None:
 	print("\n----- DOWNLOADING IMAGES FROM : " + url + " -----\n")
@@ -88,7 +87,6 @@ def	get_valid_url_from_href(href: str, url: str, url_list: [str]):
 		url_list.append(href)
 		visited_url.append(href)
 		print("Scrapped " + href + "\nFrom " + url + "\n")
-	
 
 def	get_url_list_from_anchors(url: str, tree: html.HtmlElement) -> [str]:
 	print("\n----- SCRAPPING ALL <a> FROM : " + url + " -----\n")
@@ -119,7 +117,6 @@ def	recursive_download(url:str, n: int):
 		recursive_download(new_url, n - 1)
 
 #-------------------------------------------------------------------------------------------------#
-
 
 if (sys.argv.__contains__("-l") and not sys.argv.__contains__("-r")):
 	parser.error("-r is required to use -l")
