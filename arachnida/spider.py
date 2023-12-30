@@ -3,7 +3,6 @@ import requests
 import sys
 import os
 from lxml import html
-
 from urllib.parse import urlsplit, urlparse
 
 parser = argparse.ArgumentParser()
@@ -22,6 +21,10 @@ args = parser.parse_args()
 
 def get_img_url(src: str, url: str) -> str:
 	parts_url = urlsplit(url)
+	netloc = parts_url.netloc
+	if (not netloc.endswith("/") and not src.startswith("/")):
+		netloc += "/"
+	
 	#absolute url
 	if (urlparse(src).scheme):
 		return (src)
@@ -30,13 +33,21 @@ def get_img_url(src: str, url: str) -> str:
 		return (parts_url.scheme + ":" + src)
 	#relative url
 	else:
-		return (parts_url.scheme + "://" + parts_url.netloc + src)
+		return (parts_url.scheme + "://" + netloc + src)
 
 def download_img(url: str) -> None:
-	response_img = requests.get(url)
+	try:
+		response_img = requests.get(url=url, timeout=3)
+	except requests.exceptions.Timeout:
+		print("Request from " + url + " timed out")
+		return
+	except:
+		print("Could not download image from " + url + "\n")
+		return
 	filename = os.path.basename(url)
 	open(args.PATH + filename, "wb").write(response_img.content)
 	print("Downloaded " + filename + "\nFrom " + url + "\n")
+	
 
 def download_all_imgs_from_url(url: str, tree: html.HtmlElement) -> None:
 	print("\n----- DOWNLOADING IMAGES FROM : " + url + " -----\n")
@@ -50,21 +61,32 @@ def download_all_imgs_from_url(url: str, tree: html.HtmlElement) -> None:
 		for extension in extensions:
 			if (src.endswith(extension)):
 				img_url = get_img_url(src, url)
-				download_img(img_url)
+				if (img_url not in img_downloaded):
+					img_downloaded.append(img_url)
+					download_img(img_url)
 
 def	get_valid_url_from_href(href: str, url: str, url_list: [str]):
 	parts_url = urlsplit(url)
+	url_ok = False
+
 	#Relative url
-	if (href.startswith("/")):
+	if (href.startswith("//")):
+		href = parts_url.scheme + ":" + href
+		url_ok = True
+	#Relative url
+	elif (href.startswith("/")):
 		href = parts_url.scheme + "://" + parts_url.netloc + href
-		print("Scrapped " + href + "\nFrom " + url + "\n")
-		url_list.append(href)
+		url_ok = True
 	#Absolute url but same base url
 	elif(href.startswith(parts_url.scheme + "://" + parts_url.netloc)):
+		url_ok = True
+
+	#Protection for duplicate
+	if (url_ok and href not in visited_url):
 		url_list.append(href)
-	#Invalid href for url
-	else:
-		return
+		visited_url.append(href)
+		print("Scrapped " + href + "\nFrom " + url + "\n")
+	
 
 def	get_url_list_from_anchors(url: str, tree: html.HtmlElement) -> [str]:
 	print("\n----- SCRAPPING ALL <a> FROM : " + url + " -----\n")
@@ -73,11 +95,19 @@ def	get_url_list_from_anchors(url: str, tree: html.HtmlElement) -> [str]:
 	anchors = tree.xpath("//a")
 	for anchor in anchors:
 		href = anchor.get("href")
-		get_valid_url_from_href(href, url, url_list)
+		if (href is not None):
+			get_valid_url_from_href(href, url, url_list)
 	return (url_list)
 
 def	recursive_download(url:str, n: int):
-	response_page = requests.get(url)
+	try:
+		response_page = requests.get(url)
+	except requests.exceptions.Timeout:
+		print("Request from " + url + " timed out")
+		return 
+	except:
+		print("Could not scrap url: " + url)
+		return
 	tree : html.HtmlElement = html.fromstring(response_page.content)
 	download_all_imgs_from_url(url, tree)
 	if (n <= 0):
@@ -93,11 +123,16 @@ if (sys.argv.__contains__("-l") and not sys.argv.__contains__("-r")):
 	parser.error("-r is required to use -l")
 os.makedirs(name=args.PATH, exist_ok=True)
 
+visited_url = []
+img_downloaded = []
+
+visited_url.append(args.URL)
+
 if (args.r):
 	recursive_download(args.URL, args.N)
 else:
 	recursive_download(args.URL, 0)
 
 print("\n----- DONE -----\n")
-
-#img with same name --> need to change name so i dont write on same file -> default(1), default(2), etc...
+print("\n----- NUMBER OF URL SCRAPPED: " + str(len(visited_url)) + " \n")
+print("\n----- NUMBER OF IMAGE DOWNLOADED: " + str(len(img_downloaded)) + " \n")
