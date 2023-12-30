@@ -42,7 +42,10 @@ def download_img(url: str) -> None:
 		print("Request from " + url + " timed out")
 		return
 	except:
-		print("Could not download image from " + url + "\n")
+		print("Error while downloading image from " + url + "\n")
+		return
+	if (response_img.status_code != 200):
+		print("Error while downloading image from " + url + "\n")
 		return
 	filename = os.path.basename(url)
 	open(args.PATH + filename, "wb").write(response_img.content)
