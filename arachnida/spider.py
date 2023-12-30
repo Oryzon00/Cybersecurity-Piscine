@@ -24,7 +24,6 @@ def get_img_url(src: str, url: str) -> str:
 	netloc = parts_url.netloc
 	if (not netloc.endswith("/") and not src.startswith("/")):
 		netloc += "/"
-	
 	#absolute url
 	if (urlparse(src).scheme):
 		return (src)
@@ -36,6 +35,7 @@ def get_img_url(src: str, url: str) -> str:
 		return (parts_url.scheme + "://" + netloc + src)
 
 def download_img(url: str) -> None:
+	img_downloaded.append(url)
 	try:
 		response_img = requests.get(url=url, timeout=3)
 	except requests.exceptions.Timeout:
@@ -62,7 +62,6 @@ def download_all_imgs_from_url(url: str, tree: html.HtmlElement) -> None:
 			if (src.endswith(extension)):
 				img_url = get_img_url(src, url)
 				if (img_url not in img_downloaded):
-					img_downloaded.append(img_url)
 					download_img(img_url)
 
 def	get_valid_url_from_href(href: str, url: str, url_list: [str]):
@@ -125,7 +124,6 @@ os.makedirs(name=args.PATH, exist_ok=True)
 
 visited_url = []
 img_downloaded = []
-
 visited_url.append(args.URL)
 
 if (args.r):
