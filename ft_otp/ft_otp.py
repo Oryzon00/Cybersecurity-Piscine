@@ -36,12 +36,15 @@ def	generate_master_key() -> bytes:
 		file.write(master_key)
 	return (master_key)
 
+def	read_master_key() -> bytes:
+	with open(MASTER_KEY_FILE, "rb") as file:
+		master_key = file.read()
+	return (master_key)
+
 # get fernet master key from file, generate it if does not exist
 def	get_master_key() -> bytes:
 	try:
-		with open(MASTER_KEY_FILE, "rb") as file:
-			master_key = file.read()
-			return (master_key)
+		master_key = read_master_key()
 	except FileNotFoundError:
 		master_key = generate_master_key()
 	return (master_key)
@@ -68,7 +71,6 @@ def	generate_encrypted_key(filename: str):
 
 # Generate TOTP | -k
 
-
 # HMAC-based one-time password
 # hash-based message authentication code
 # def	hotp(key: str):
@@ -77,30 +79,29 @@ def	generate_encrypted_key(filename: str):
 # 	print("secret: ", secret)
 # 	return
 
-def	decrypt_secret() -> str:
+def	decrypt_secret(filename: str) -> str:
+	with open(filename, 'rb') as file:
+		cypher = file.read()
+	master_key = read_master_key()
+	f = Fernet(master_key)
+	secret = f.decrypt(cypher)
+	return (secret.decode())
 	
-	return
-
 def	generate_TOTP(filename: str):
-	try:
-		with open(filename, 'r') as file:
-			key = file.read()
-		print("sec: ", key)
-	except Exception as e:
-		print("Error: ", e)
-		sys.exit(1)
+	secret = decrypt_secret(filename)
+	print("Decrypted secret: ", secret)
 
 #-------------------------------------------------------------------------------------------------#
 
 def	main():
-	try:
+	# try:
 		if (args.hexa_key):
 			generate_encrypted_key(args.hexa_key)
 		elif (args.key):
 			generate_TOTP(args.key)
-	except Exception as e:
-		print("Error: ", e)
-		sys.exit(1)
+	# except Exception as e:
+	# 	print("Error: ", e)
+	# 	sys.exit(1)
 
 if __name__ == "__main__":
 	main()
