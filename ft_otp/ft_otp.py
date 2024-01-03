@@ -36,7 +36,6 @@ def	generate_master_key() -> bytes:
 		file.write(master_key)
 	return (master_key)
 
-
 # get fernet master key from file, generate it if does not exist
 def	get_master_key() -> bytes:
 	try:
@@ -67,8 +66,7 @@ def	generate_encrypted_key(filename: str):
 	except Exception as e:
 		print("Error: ", e)
 		sys.exit(1)
-	
-	
+
 #-------------------------------------------------------------------------------------------------#
 
 # Generate TOTP | -k
@@ -94,7 +92,6 @@ def	generate_TOTP(filename: str):
 	except Exception as e:
 		print("Error: ", e)
 		sys.exit(1)
-
 
 #-------------------------------------------------------------------------------------------------#
 
