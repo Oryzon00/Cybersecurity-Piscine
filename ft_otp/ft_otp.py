@@ -1,5 +1,6 @@
 import argparse
 import sys
+import hmac
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)
@@ -13,29 +14,51 @@ args = parser.parse_args()
 
 # Generate encrypted key | -g
 
+def	is_hexadecimal(key: str) -> bool:
+	try:
+		int(key, 16)
+		return (True)
+	except ValueError:
+		return (False)
+
+def	validate_key(key: str)-> bool:
+	if (len(key) < 64):
+		return (False)
+	return (is_hexadecimal(key))
+
 def	generate_encrypted_key(filename: str):
 	print("-g: ", filename)
 	try:
 		with open(filename, 'r') as f:
 			key = f.read()
-		print("content: ", key)
+		if (not validate_key(key)):
+			print("ft_otp: error: key must be at least 64 hexadecimal characters.")
+			return 
+		#need to encrypt key 
+		with open('ft_otp.key', 'w') as file:
+			file.write(key)
 	except Exception as e:
 		print("Error: ", e)
 		sys.exit(1)
+	
 	
 #-------------------------------------------------------------------------------------------------#
 
 # Generate TOTP | -k
 
+def	hotp(key: str, time):
+	return
+
 def	generate_TOTP(filename: str):
 	print("-k: ", filename)
 	try:
-		with open(filename, 'r') as f:
-			key = f.read()
+		with open(filename, 'r') as file:
+			key = file.read()
 		print("content: ", key)
 	except Exception as e:
 		print("Error: ", e)
 		sys.exit(1)
+
 
 #-------------------------------------------------------------------------------------------------#
 
