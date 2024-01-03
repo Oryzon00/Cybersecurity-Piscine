@@ -53,7 +53,6 @@ def	encrypt_hexa_key(secret: str) -> bytes:
 	return (cypher)
 
 def	generate_encrypted_key(filename: str):
-	try:
 		with open(filename, 'r') as f:
 			hexa_key = f.read()
 		if (not validate_key(hexa_key)):
@@ -63,9 +62,7 @@ def	generate_encrypted_key(filename: str):
 		with open('ft_otp.key', 'wb') as file:
 			file.write(cypher)
 			print("Key was successfully saved in ft_otp.key")
-	except Exception as e:
-		print("Error: ", e)
-		sys.exit(1)
+	
 
 #-------------------------------------------------------------------------------------------------#
 
@@ -88,7 +85,7 @@ def	generate_TOTP(filename: str):
 	try:
 		with open(filename, 'r') as file:
 			key = file.read()
-		print("content: ", key)
+		print("sec: ", key)
 	except Exception as e:
 		print("Error: ", e)
 		sys.exit(1)
@@ -96,10 +93,14 @@ def	generate_TOTP(filename: str):
 #-------------------------------------------------------------------------------------------------#
 
 def	main():
-	if (args.hexa_key):
-		generate_encrypted_key(args.hexa_key)
-	elif (args.key):
-		generate_TOTP(args.key)
+	try:
+		if (args.hexa_key):
+			generate_encrypted_key(args.hexa_key)
+		elif (args.key):
+			generate_TOTP(args.key)
+	except Exception as e:
+		print("Error: ", e)
+		sys.exit(1)
 
 if __name__ == "__main__":
 	main()
