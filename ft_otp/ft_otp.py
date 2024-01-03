@@ -6,14 +6,6 @@ from cryptography.fernet import Fernet
 
 MASTER_KEY_FILE = ".master.key"
 
-parser = argparse.ArgumentParser()
-group = parser.add_mutually_exclusive_group(required=True)
-
-group.add_argument("-g", dest="hexa_key", help="""Generate an encrypted key in key.hex from a
-					hexadecimal of at least 64 characters""")
-group.add_argument("-k", dest="key", help="""Generate a TOTP using the encrypted key""")
-args = parser.parse_args()
-
 #-------------------------------------------------------------------------------------------------#
 
 # Generate encrypted key | -g
@@ -95,6 +87,13 @@ def	generate_TOTP(filename: str):
 
 def	main():
 	# try:
+		parser = argparse.ArgumentParser()
+		group = parser.add_mutually_exclusive_group(required=True)
+
+		group.add_argument("-g", dest="hexa_key", help="""Generate an encrypted key in key.hex from a
+							hexadecimal of at least 64 characters""")
+		group.add_argument("-k", dest="key", help="""Generate a TOTP using the encrypted key""")
+		args = parser.parse_args()
 		if (args.hexa_key):
 			generate_encrypted_key(args.hexa_key)
 		elif (args.key):
