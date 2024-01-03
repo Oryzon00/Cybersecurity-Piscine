@@ -30,14 +30,6 @@ def	validate_key(key: str)-> bool:
 		return (False)
 	return (is_hexadecimal(key))
 
-# HMAC-based one-time password
-# hash-based message authentication code
-# def	hotp(key: str):
-# 	secret = base64.b32encode(bytes(key, 'utf-8'))
-# 	print("key: ", key)
-# 	print("secret: ", secret)
-# 	return
-
 def	generate_master_key() -> bytes:
 	master_key = Fernet.generate_key()
 	with open(MASTER_KEY_FILE, 'wb') as file:
@@ -81,10 +73,19 @@ def	generate_encrypted_key(filename: str):
 
 # Generate TOTP | -k
 
+
+# HMAC-based one-time password
+# hash-based message authentication code
+# def	hotp(key: str):
+# 	secret = base64.b32encode(bytes(key, 'utf-8'))
+# 	print("key: ", key)
+# 	print("secret: ", secret)
+# 	return
+
 def	decrypt_secret() -> str:
 	
-
 	return
+
 def	generate_TOTP(filename: str):
 	try:
 		with open(filename, 'r') as file:
