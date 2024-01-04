@@ -1,5 +1,6 @@
 import argparse
 import sys
+import logging
 import hmac
 import base64
 from cryptography.fernet import Fernet
@@ -99,8 +100,8 @@ def	main():
 		elif (args.key):
 			generate_TOTP(args.key)
 	except Exception as e:
-		print("ft_otp: error: ", e)
-		sys.exit(1)
+		logging.error("An error occurred.", exc_info=True)	
+		sys.exit(2)
 
 if __name__ == "__main__":
 	main()
