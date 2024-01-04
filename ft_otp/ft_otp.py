@@ -66,17 +66,13 @@ def	generate_encrypted_key(filename: str):
 
 # HMAC-based one-time password
 # hash-based message authentication code
-			
-
-secret = base64.b32encode(b"password")
-counter = 0
-counter_bytes = counter.to_bytes(8, byteorder='big')  # 8-byte, big-edian
-hs_hmac = hmac.new(secret, counter_bytes, "sha1")
 
 def	hotp(key: str):
-	secret = base64.b32encode(bytes(key, 'utf-8'))
-	print("key: ", key)
-	print("secret: ", secret)
+	secret_b = base64.b32encode(bytes(key, 'utf-8'))
+	counter = 0
+	counter_b = counter.to_bytes(8, byteorder="big")
+	hashed_secret_hmac = hmac.new(secret_b, counter_b, "sha1")
+	hashed_secret = hashed_secret_hmac.digest()
 	return
 
 def	decrypt_key(filename: str) -> str:
