@@ -86,21 +86,21 @@ def	generate_TOTP(filename: str):
 #-------------------------------------------------------------------------------------------------#
 
 def	main():
-	# try:
+	try:
 		parser = argparse.ArgumentParser()
 		group = parser.add_mutually_exclusive_group(required=True)
-
 		group.add_argument("-g", dest="hexa_key", help="""Generate an encrypted key in key.hex from a
 							hexadecimal of at least 64 characters""")
 		group.add_argument("-k", dest="key", help="""Generate a TOTP using the encrypted key""")
 		args = parser.parse_args()
+
 		if (args.hexa_key):
 			generate_encrypted_key(args.hexa_key)
 		elif (args.key):
 			generate_TOTP(args.key)
-	# except Exception as e:
-	# 	print("Error: ", e)
-	# 	sys.exit(1)
+	except Exception as e:
+		print("ft_otp: error: ", e)
+		sys.exit(1)
 
 if __name__ == "__main__":
 	main()
