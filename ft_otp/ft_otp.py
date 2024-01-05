@@ -67,13 +67,35 @@ def	generate_encrypted_key(filename: str):
 # HMAC-based one-time password
 # hash-based message authentication code
 
-def	hotp(key: str):
+def last_31_bits(p):
+    res = bytearray()
+    res.append(p[0] & 0x7F)    # 7 bits
+    for b in p[1:]:
+        res.append(b & 0xFF)   # 8 bits
+    return res
+
+def	get_low_order_4_bits(value) -> bytes:
+	return (value & 0b1111)
+
+def	dynamic_truncation(hashed_secret: str) -> str:
+	print("hashed_secret[19]: ", hashed_secret[19])
+	offset_bits = get_low_order_4_bits(hashed_secret[19])
+	print(offset_bits)
+	p = hashed_secret[offset_bits:offset_bits+4]
+	return (last_31_bits(p))
+			
+def	generate_hash_secret(key: str) -> str:
 	secret_b = base64.b32encode(bytes(key, 'utf-8'))
 	counter = 0
 	counter_b = counter.to_bytes(8, byteorder="big")
 	hashed_secret_hmac = hmac.new(secret_b, counter_b, "sha1")
 	hashed_secret = hashed_secret_hmac.digest()
-	return
+	return (hashed_secret)
+
+def	hotp(key: str):
+	hashed_secret = generate_hash_secret(key)
+	print("hashed secret: ", hashed_secret)
+	dynamic_truncation(hashed_secret)
 
 def	decrypt_key(filename: str) -> str:
 	with open(filename, 'rb') as file:
