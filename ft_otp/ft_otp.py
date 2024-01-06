@@ -4,6 +4,8 @@ import logging
 import hmac
 import base64
 from cryptography.fernet import Fernet
+import time
+import pyotp
 
 MASTER_KEY_FILE = ".master.key"
 
@@ -64,8 +66,15 @@ def	generate_encrypted_key(filename: str):
 
 # Generate TOTP | -k
 
+# HOTP
 # HMAC-based one-time password
+
+# HMAC
 # hash-based message authentication code
+
+def	compute_byte_array(s_bit: bytearray):
+	s_num = int(s_bit.hex(), 16)
+	return (s_num % 10 ** 6)
 
 def last_31_bits(p):
     res = bytearray()
@@ -74,40 +83,48 @@ def last_31_bits(p):
         res.append(b & 0xFF)   # 8 bits
     return res
 
-def	get_low_order_4_bits(value) -> bytes:
+def	get_low_order_4_bits(value):
 	return (value & 0b1111)
 
-def	dynamic_truncation(hashed_secret: str) -> str:
-	print("hashed_secret[19]: ", hashed_secret[19])
+def	dynamic_truncation(hashed_secret: bytes):
 	offset_bits = get_low_order_4_bits(hashed_secret[19])
-	print(offset_bits)
 	p = hashed_secret[offset_bits:offset_bits+4]
 	return (last_31_bits(p))
-			
-def	generate_hash_secret(key: str) -> str:
-	secret_b = base64.b32encode(bytes(key, 'utf-8'))
-	counter = 0
-	counter_b = counter.to_bytes(8, byteorder="big")
-	hashed_secret_hmac = hmac.new(secret_b, counter_b, "sha1")
+
+def	generate_hash_secret(key: str, time_steps: int):
+	secret_b = bytes.fromhex(key)
+	time_steps_b = time_steps.to_bytes(8, byteorder="big")
+	hashed_secret_hmac = hmac.new(secret_b, time_steps_b, "sha1")
 	hashed_secret = hashed_secret_hmac.digest()
 	return (hashed_secret)
 
-def	hotp(key: str):
-	hashed_secret = generate_hash_secret(key)
-	print("hashed secret: ", hashed_secret)
-	dynamic_truncation(hashed_secret)
+def	hotp(key: str, time_steps: int):
+	hashed_secret = generate_hash_secret(key, time_steps)
+	s_bits = dynamic_truncation(hashed_secret)
+	otp = compute_byte_array(s_bits)
+	return otp
 
-def	decrypt_key(filename: str) -> str:
+def	ft_totp(key: str, time_interval: int):
+	second_since_epoch = int(time.time())
+	time_steps = int(second_since_epoch / time_interval)
+	otp = hotp(key, time_steps)
+	return (str(otp).zfill(6))
+
+def	decrypt_key(filename: str):
 	with open(filename, 'rb') as file:
 		cypher = file.read()
 	master_key = read_master_key()
 	f = Fernet(master_key)
 	secret = f.decrypt(cypher)
 	return (secret.decode())
-	
+
 def	generate_TOTP(filename: str):
+	time_interval = 30
 	key = decrypt_key(filename)
-	hotp(key)
+	otp = ft_totp(key, time_interval)
+	true_totp = pyotp.TOTP(base64.b32encode(bytes.fromhex(key))).now()
+	print(f"{'my otp':20} {otp}")
+	print(f"{'true totp':20} {true_totp}")
 
 #-------------------------------------------------------------------------------------------------#
 
