@@ -1,7 +1,7 @@
 import argparse
 import os
 import datetime
-from PIL import Image
+from PIL import Image, ExifTags
 from PIL.ExifTags import TAGS
 
 
@@ -10,18 +10,18 @@ parser.add_argument("files", type=str, nargs="+", help="Files to parse")
 arg = parser.parse_args()
 
 def	display_path_to_file(path: str):
-	print("PATH to file: ", path)
+	print(f"{'PATH to file':25}: {path}")
 
 def	display_creation_date(path: str):
 	c_timestamp = os.path.getctime(path)
 	c_datestamp = datetime.datetime.fromtimestamp(c_timestamp)
-	print('CREATION DATE/TIME:', c_datestamp)
+	print(f"{'CREATION DATE/TIME':25}: {c_datestamp}")
 
 def	display_EXIF_data(path: str):
 	image = Image.open(path)
+	exif_data = image.getexif()
 
 	info_dict = {
-    "Filename": image.filename,
     "Image Size": image.size,
     "Image Height": image.height,
     "Image Width": image.width,
@@ -34,15 +34,17 @@ def	display_EXIF_data(path: str):
 	for label,value in info_dict.items():
 		print(f"{label:25}: {value}")
 
-	# for tag_id in exif_data:
-	# 	print("In loop")
-	# 	# get the tag name, instead of human unreadable tag id
-	# 	tag = TAGS.get(tag_id, tag_id)
-	# 	data = exif_data.get(tag_id)
-	# 	# decode bytes 
-	# 	if isinstance(data, bytes):
-	# 		data = data.decode()
-	# 	print(f"{tag:25}: {data}")
+	if exif_data is None:
+		print("Sorry, image has no exif data")
+	else:
+		for tag_id in exif_data:
+			# get the tag name, instead of human unreadable tag id
+			tag = TAGS.get(tag_id, tag_id)
+			data = exif_data.get(tag_id)
+			# decode bytes 
+			if isinstance(data, bytes):
+				data = data.decode()
+			print(f"{tag:25}: {data}")
 
 
 for file in arg.files:
