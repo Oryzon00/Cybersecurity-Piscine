@@ -34,6 +34,15 @@ def get_img_url(src: str, url: str) -> str:
 	else:
 		return (parts_url.scheme + "://" + netloc + src)
 
+def	uniquify(path: str) -> str:
+	filename, extension = os.path.splitext(path)
+	counter = 1
+
+	while (os.path.exists(args.PATH + path)):
+		path = f"{filename}({counter}){extension}"
+		counter += 1
+	return path
+
 def download_img(url: str) -> None:
 	img_downloaded.append(url)
 	try:
@@ -48,8 +57,9 @@ def download_img(url: str) -> None:
 		print("Error while downloading image from " + url + "\n")
 		return
 	filename = os.path.basename(url)
-	open(args.PATH + filename, "wb").write(response_img.content)
-	print("Downloaded " + filename + "\nFrom " + url + "\n")
+	unique_filename = uniquify(filename)
+	open(args.PATH + unique_filename, "wb").write(response_img.content)
+	print("Downloaded " + unique_filename + "\nFrom " + url + "\n")
 
 def download_all_imgs_from_url(url: str, tree: html.HtmlElement) -> None:
 	print("\n----- DOWNLOADING IMAGES FROM : " + url + " -----\n")
@@ -132,5 +142,5 @@ else:
 	recursive_download(args.URL, 0)
 
 print("\n----- DONE -----\n")
-print("\n----- NUMBER OF URL SCRAPPED: " + str(len(visited_url)) + " \n")
-print("\n----- NUMBER OF IMAGE DOWNLOADED: " + str(len(img_downloaded)) + " \n")
+print("\n----- NUMBER OF URL SCRAPPED: " + str(len(visited_url)) + " -----\n")
+print("\n----- NUMBER OF IMAGE DOWNLOADED: " + str(len(img_downloaded)) + " -----\n")
