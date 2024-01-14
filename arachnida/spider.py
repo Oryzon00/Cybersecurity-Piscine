@@ -41,7 +41,7 @@ def download_img(url: str) -> None:
 	except requests.exceptions.Timeout:
 		print("Request from " + url + " timed out")
 		return
-	except:
+	except requests.exceptions.RequestException:
 		print("Error while downloading image from " + url + "\n")
 		return
 	if (response_img.status_code != 200):
@@ -105,7 +105,7 @@ def	recursive_download(url:str, n: int):
 	except requests.exceptions.Timeout:
 		print("Request from " + url + " timed out")
 		return 
-	except:
+	except requests.exceptions.RequestException:
 		print("Could not scrap url: " + url)
 		return
 	tree : html.HtmlElement = html.fromstring(response_page.content)
