@@ -5,8 +5,8 @@ RUN			apt install -y nginx
 RUN			apt install -y tor
 RUN			apt install -y openssh-server
 
-RUN			mkdir 			-p /etc/nginx/sites-available
-COPY		./nginx.conf	/etc/nginx/sites-available/nginx.conf
+RUN			mkdir 			-p /etc/nginx/conf.d
+COPY		./ft_onion.conf	/etc/nginx/conf.d/ft_onion.conf
 
 RUN			mkdir -p 		/var/www/html
 COPY		./index.html	/var/www/html/index.html
@@ -18,7 +18,9 @@ RUN			echo "root:123soleil" | chpasswd
 
 COPY		./init.sh		/init.sh
 
-			# Path to hostname cat /var/lib/tor/my-website/hostname
 COPY		./torrc			/etc/tor/torrc 
 
 CMD			["sh", "init.sh"]
+
+# Path to hostname 
+# cat /var/lib/tor/my_website/hostname
