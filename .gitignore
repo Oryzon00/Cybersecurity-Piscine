@@ -166,5 +166,4 @@ cython_debug/
 *.bmp
 
 *.key
-*.txt
 *.hex
