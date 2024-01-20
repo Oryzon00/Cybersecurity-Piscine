@@ -6,8 +6,8 @@ import os.path
 from cryptography.fernet import Fernet, InvalidToken
 
 PATH_FILE_KEY="./.key"
-# PATH_INFECTION_FOLDER="/home/infection/"
-PATH_INFECTION_FOLDER="/home/adrian/42cursus/cybersecurity_piscine/stockholm/ressources/"
+PATH_INFECTION_FOLDER="/home/infection/"
+# PATH_INFECTION_FOLDER="/home/adrian/42cursus/cybersecurity_piscine/stockholm/ressources/"
 PATH_EXTENSION_LIST="./extension_list.txt"
 
 silent_output = False
