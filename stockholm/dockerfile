@@ -1,6 +1,6 @@
 FROM		python:3.10
 
-RUN			mkdir -e "/home/infection"
+RUN			mkdir -p "/home/infection"
 
 WORKDIR		/home
 COPY		src/		.
