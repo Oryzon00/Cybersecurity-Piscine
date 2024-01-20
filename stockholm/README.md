@@ -1,19 +1,3 @@
-Welcome to stockholm !
-
-To start the docker use the command "make up"
-Then to perform actions inside the virtual environment, use "make exec" 
-You can now start the program with "python3 stockholm.py"
-
-The program will encrypt and decrypt only files inside the folder infection
-
-Flags:
--h, --help
--v, --version
--s, --silent
--r, --reverse	KEY
-
-/////////////////
-
 # Stockholm
 
 Stockholm is a Python application designed to encrypt and decrypt files, like a ransomware would.
