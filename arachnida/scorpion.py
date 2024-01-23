@@ -1,5 +1,7 @@
 import argparse
 import os
+import sys
+import logging
 import datetime
 from PIL import Image, ExifTags
 from PIL.ExifTags import TAGS
@@ -46,9 +48,12 @@ def	display_EXIF_data(path: str):
 				data = data.decode()
 			print(f"{tag:25}: {data}")
 
-
-for file in arg.files:
-	display_path_to_file(file)
-	display_creation_date(file)
-	display_EXIF_data(file)
-	print("\n -------------------------------- \n")
+try:
+	for file in arg.files:
+		display_path_to_file(file)
+		display_creation_date(file)
+		display_EXIF_data(file)
+		print("\n -------------------------------- \n")
+except Exception as e:
+		logging.error("An error occurred.", exc_info=False)	
+		sys.exit(2)

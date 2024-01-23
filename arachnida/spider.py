@@ -2,6 +2,7 @@ import argparse
 import requests
 import sys
 import os
+import logging
 from lxml import html
 from urllib.parse import urlsplit, urlparse
 
@@ -128,19 +129,25 @@ def	recursive_download(url:str, n: int):
 
 #-------------------------------------------------------------------------------------------------#
 
-if (sys.argv.__contains__("-l") and not sys.argv.__contains__("-r")):
-	parser.error("-r is required to use -l")
-os.makedirs(name=args.PATH, exist_ok=True)
+try:
+	if (sys.argv.__contains__("-l") and not sys.argv.__contains__("-r")):
+		parser.error("-r is required to use -l")
+	if (args.PATH != "./data/"):
+		args.PATH = "./" + args.PATH + "/"
+	os.makedirs(name=args.PATH, exist_ok=True)
 
-visited_url = []
-img_downloaded = []
-visited_url.append(args.URL)
+	visited_url = []
+	img_downloaded = []
+	visited_url.append(args.URL)
 
-if (args.r):
-	recursive_download(args.URL, args.N)
-else:
-	recursive_download(args.URL, 0)
+	if (args.r):
+		recursive_download(args.URL, args.N)
+	else:
+		recursive_download(args.URL, 0)
 
-print("\n----- DONE -----\n")
-print("\n----- NUMBER OF URL SCRAPPED: " + str(len(visited_url)) + " -----\n")
-print("\n----- NUMBER OF IMAGE DOWNLOADED: " + str(len(img_downloaded)) + " -----\n")
+	print("\n----- DONE -----\n")
+	print("\n----- NUMBER OF URL SCRAPPED: " + str(len(visited_url)) + " -----\n")
+	print("\n----- NUMBER OF IMAGE DOWNLOADED: " + str(len(img_downloaded)) + " -----\n")
+except Exception as e:
+		logging.error("An error occurred.", exc_info=False)	
+		sys.exit(2)
