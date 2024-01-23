@@ -142,7 +142,7 @@ def	main():
 		elif (args.key):
 			generate_TOTP(args.key)
 	except Exception as e:
-		logging.error("An error occurred.", exc_info=True)	
+		logging.error("An error occurred.", exc_info=False)	
 		sys.exit(2)
 
 if __name__ == "__main__":
