@@ -55,7 +55,7 @@ def	generate_encrypted_key(filename: str):
 			hexa_key = f.read()
 		if (not validate_key(hexa_key)):
 			print("ft_otp: error: key must be at least 64 hexadecimal characters.")
-			return 
+			exit(1) 
 		cypher = encrypt_hexa_key(hexa_key)
 		with open('ft_otp.key', 'wb') as file:
 			file.write(cypher)
