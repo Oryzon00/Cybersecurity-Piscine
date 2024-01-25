@@ -3,9 +3,9 @@
 
 int main(void)
 {
-	char	password = "__stack_check";
-	char	*input;
-	strcpy(password, "__stack_check");
+	char	*password = "__stack_check";
+	char	input[1024];
+	// strcpy(password, "__stack_check");
 	printf("Please enter key: ");
 	scanf("%s", input);
 	if ( !strcmp(input, password) )
