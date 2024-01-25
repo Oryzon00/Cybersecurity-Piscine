@@ -6,7 +6,7 @@ build:
 		docker build -t ${DOCKER_NAME} .
 
 up:		build
-		docker run --name ft_onion -d  -p 4242:22 ${DOCKER_NAME}
+		docker run --name ft_onion -d  -p 4243:22 ${DOCKER_NAME}
 #-p 80:80
 
 stop:
